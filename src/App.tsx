@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useReducer} from 'react';
+import {BrowserRouter, Route, Switch} from 'react-router-dom'
 import './App.css';
+import routes from "./config/routes";
+import {MainReducer, IMainState, Action} from "./services/MainReducer";
+import Header from "./components/Header";
+
+const InitState: IMainState = {
+    daySittings: [],
+    currentSitting: {},
+    currentReservation: {},
+    allResForSitting: [],
+    cancelled :[],
+    freeTables: [],
+    isLoading: false,
+    error: {}
+}
+
+interface ContextType {
+    mainState: IMainState,
+    mainDispatch: React.Dispatch<Action>
+}
+
+export const MainContext = React.createContext({} as ContextType);
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [mainState, mainDispatch] = useReducer(MainReducer, InitState)
+    return (
+        <MainContext.Provider value={{mainState , mainDispatch}}>
+            <BrowserRouter>
+                <Header />
+                <Switch>
+                    {routes.map((route, index) => {
+                        return (
+                            <Route
+                            key={index}
+                            path={route.path}
+                            exact={route.exact}
+                            component={route.component}
+                             />
+                        )
+                    })}
+                </Switch>
+            </BrowserRouter>
+        </MainContext.Provider>
+    );
 }
 
 export default App;
